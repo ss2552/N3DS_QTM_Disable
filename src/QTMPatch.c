@@ -1,3 +1,5 @@
+extern rpDoQTMPatchAndToggle(void);
+extern result = 0;
 
 static int qtmPatched = 0;
 static int qtmPayloadAddr = 0;
