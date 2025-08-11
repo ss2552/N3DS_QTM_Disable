@@ -12,9 +12,11 @@
 #include <memory.h>
 #include <errno.h>
 
+extern void rpDoQTMPatchAndToggle(void);
+
 static int qtmPatched = 0;
 static int qtmPayloadAddr = 0;
-static int qtmDisabled = 0;
+// static int qtmDisabled = 0;
 
 static u32 currentPid = 0;
 u32 getCurrentProcessId(void) {
