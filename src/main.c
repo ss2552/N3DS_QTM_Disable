@@ -26,28 +26,15 @@ int main(void)
     
     //
 
-    Draw_Init();
-
-    // QTMの確認
-    if(){
-        
-        // QTMを無効化
-        rpDoQTMPatchAndToggle();
-        if(){
-            topScreenConsole.bg = CONSOLE_GREEN;
-            consoleClear();
-        }else{
-        }
-            
-    }else{
-        // QTMを有効化
-        rpDoQTMPatchAndToggle();
-        if(){
-            topScreenConsole.bg = CONSOLE_RED;
-            consoleClear();
-        }else{
-        }
-    }
+	// QTMを有効または無効化
+	if(rpDoQTMPatchAndToggle()){
+		
+		topScreenConsole.bg = CONSOLE_GREEN;
+	}else{
+		topScreenConsole.bg = CONSOLE_RED;
+	}
+	// 
+	consoleClear();
 
     // 画面を更新
     gspWaitForVBlank();
@@ -57,7 +44,6 @@ int main(void)
 
 deinit:
 
-	romfsExit();
 	gfxExit();
 
 exlt:
