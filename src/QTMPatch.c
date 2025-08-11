@@ -1,9 +1,3 @@
-extern u32 rpDoQTMPatchAndToggle(void);
-extern u32 rtGetPageOfAddress(u32 addr);
-extern u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm);
-
-extern result = 0;
-
 #include <memory.h>
 #include <errno.h>
 
