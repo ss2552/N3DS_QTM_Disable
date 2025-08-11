@@ -3,7 +3,7 @@
 #include <3ds.h>
 
 extern u32 result = 0;
-extern bool isEnable = false;
+extern bool qtmDisabled = false;
 
 int main(void)
 {
@@ -34,7 +34,7 @@ int main(void)
 		"無効化"
 	}
 	
-	printf("QTMを%c", msg[isEnable]);
+	printf("QTMを%c", msg[qtmDisabled]);
 	
 	// 
 	consoleClear();
