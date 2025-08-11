@@ -1,9 +1,52 @@
-extern rpDoQTMPatchAndToggle(void);
+extern u32 rpDoQTMPatchAndToggle(void);
+extern u32 rtGetPageOfAddress(u32 addr);
+extern u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm);
+
 extern result = 0;
+
+#include <memory.h>
+#include <errno.h>
 
 static int qtmPatched = 0;
 static int qtmPayloadAddr = 0;
 static int qtmDisabled = 0;
+
+u32 rtGetPageOfAddress(u32 addr) {
+	return PAGE_OF_ADDR(addr);
+}
+
+u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm) {
+	MemInfo memInfo;
+	PageInfo pageInfo;
+	s32 ret = svcQueryMemory(&memInfo, &pageInfo, addr);
+	if (ret != 0) {
+		nsDbgPrint("svcQueryMemory failed for addr %08"PRIx32": %08"PRIx32"\n", addr, ret);
+		return ret;
+	}
+	if (memInfo.perm == 0) {
+		return -1;
+	}
+	if (memInfo.base_addr + memInfo.size < addr + size) {
+		return -1;
+	}
+
+	if (perm & MEMPERM_WRITE)
+		perm |= MEMPERM_READ;
+	if ((memInfo.perm & perm) == perm) {
+		return 0;
+	}
+
+	perm |= memInfo.perm;
+
+	u32 startPage, endPage;
+
+	startPage = rtGetPageOfAddress(addr);
+	endPage = rtGetPageOfAddress(addr + size - 1);
+	size = endPage - startPage + 0x1000;
+
+	ret = protectRemoteMemory(hProcess, (void *)startPage, size, perm);
+	return ret;
+}
 
 // When enabling this patch, the qtm camera service usage is more or less disabled.
 // This increases performance on New 3DS for remote play by up to 20%.
