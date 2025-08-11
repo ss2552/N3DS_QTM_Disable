@@ -1,3 +1,6 @@
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <3ds.h>
 #include "memory.h"
 #include "service_manager.h"
@@ -14,6 +17,13 @@ int main(void)
 
     // init
 
+    PrintConsole topScreenConsole;
+	gfxInitDefault();
+	consoleInit(GFX_TOP, &topScreenConsole);
+
+    topScreenConsole.bg = CONSOLE_WHITE;
+    consoleClear();
+    
     //
 
     Draw_Init();
@@ -23,16 +33,35 @@ int main(void)
         
         // QTMを無効化
         rpDoQTMPatchAndToggle();
+        if(){
+            topScreenConsole.bg = CONSOLE_GREEN;
+            consoleClear();
+        }else{
+        }
             
     }else{
         // QTMを有効化
         rpDoQTMPatchAndToggle();
+        if(){
+            topScreenConsole.bg = CONSOLE_RED;
+            consoleClear();
+        }else{
+        }
     }
 
+    // 画面を更新
+    gspWaitForVBlank();
+
+    // ボタンが押されるまで待機
+    hidScanInput();
+
 deinit:
-    
+
+	romfsExit();
+	gfxExit();
 
 exlt:
 
     return 0;
 }
+
