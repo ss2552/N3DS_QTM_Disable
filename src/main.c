@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <3ds.h>
 
+extern u32 result = 0;
+extern bool isEnable = false;
+
 int main(void)
 {
 
@@ -22,9 +25,9 @@ int main(void)
     //
 
 	// QTMを有効または無効化
-	bool isEnable = rpDoQTMPatchAndToggle();
+	rpDoQTMPatchAndToggle();
 		
-	topScreenConsole.bg = result ? CONSOLE_GREEN : CONSOLE_RED;
+	topScreenConsole.bg = result > 0 ? CONSOLE_GREEN : CONSOLE_RED;
 
 	char msg[2][] = {
 		"有効化",
