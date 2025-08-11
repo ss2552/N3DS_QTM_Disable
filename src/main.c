@@ -1,11 +1,6 @@
 #include <string.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <3ds.h>
-#include "memory.h"
-#include "service_manager.h"
-#include "utils.h"
-#include "MyThread.h"
 
 int main(void)
 {
@@ -27,12 +22,17 @@ int main(void)
     //
 
 	// QTMを有効または無効化
-	if(rpDoQTMPatchAndToggle()){
+	bool isEnable = rpDoQTMPatchAndToggle();
 		
-		topScreenConsole.bg = CONSOLE_GREEN;
-	}else{
-		topScreenConsole.bg = CONSOLE_RED;
+	topScreenConsole.bg = result ? CONSOLE_GREEN : CONSOLE_RED;
+
+	char msg[2][] = {
+		"有効化",
+		"無効化"
 	}
+	
+	printf("QTMを%c", msg[isEnable]);
+	
 	// 
 	consoleClear();
 
