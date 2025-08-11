@@ -1,9 +1,90 @@
+#include "3ds/services/soc.h"
+#include "3ds/services/fs.h"
+#include "xprintf.h"
+#include "constants.h"
+#include "func.h"
+#include "3ds/types.h"
+#include "3ds/svc.h"
+#include "3ds/os.h"
+#include "csvc.h"
+#include <inttypes.h>
+
 #include <memory.h>
 #include <errno.h>
 
 static int qtmPatched = 0;
 static int qtmPayloadAddr = 0;
 static int qtmDisabled = 0;
+
+static u32 currentPid = 0;
+u32 getCurrentProcessId(void) {
+	if (currentPid != 0)
+		return currentPid;
+	svcGetProcessId(&currentPid, CUR_PROCESS_HANDLE);
+	return currentPid;
+}
+
+static Handle hCurrentProcess = 0;
+u32 getCurrentProcessHandle(void) {
+	u32 handle = 0;
+	u32 ret;
+
+	if (hCurrentProcess != 0) {
+		return hCurrentProcess;
+	}
+	ret = svcOpenProcess(&handle, getCurrentProcessId());
+	if (ret != 0) {
+		return 0;
+	}
+	hCurrentProcess = handle;
+	return hCurrentProcess;
+}
+
+u32 protectRemoteMemory(Handle hProcess, void *addr, u32 size, u32 perm) {
+	return svcControlProcessMemory(hProcess, (u32)addr, 0, size, MEMOP_PROT, perm);
+}
+
+u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc, u32 size, s64 timeout) {
+	u8 dmaConfig[sizeof(DmaConfig)] = {-1, 0, 4};
+	u32 hdma = 0;
+	u32 ret;
+
+	ret = svcFlushProcessDataCache(hSrc, (u32)ptrSrc, size);
+	if (ret != 0) {
+		nsDbgPrint("svcFlushProcessDataCache src failed: %08"PRIx32"\n", ret);
+		return ret;
+	}
+	ret = svcFlushProcessDataCache(hDst, (u32)ptrDst, size);
+	if (ret != 0) {
+		nsDbgPrint("svcFlushProcessDataCache dst failed: %08"PRIx32"\n", ret);
+		return ret;
+	}
+
+	ret = svcStartInterProcessDma(&hdma, hDst, (u32)ptrDst, hSrc, (u32)ptrSrc, size, (DmaConfig *)dmaConfig);
+	if (ret != 0) {
+        nsDbgPrint("svcStartInterProcessDma failed: %08"PRIx32"\n", ret);
+		return ret;
+	}
+	ret = svcWaitSynchronization(hdma, timeout);
+	if (ret != 0) {
+		showDbg("copyRemoteMemory time out (or error) %08"PRIx32, ret);
+		svcCloseHandle(hdma);
+		return 1;
+	}
+
+	svcCloseHandle(hdma);
+	ret = svcInvalidateProcessDataCache(hDst, (u32)ptrDst, size);
+	if (ret != 0) {
+        nsDbgPrint("svcInvalidateProcessDataCache failed: %08"PRIx32"\n", ret);
+		return ret;
+	}
+	return 0;
+}
+
+u32 copyRemoteMemory(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc, u32 size) {
+	return copyRemoteMemoryTimeout(hDst, ptrDst, hSrc, ptrSrc, size, COPY_REMOTE_MEMORY_TIMEOUT);
+}
+
 
 u32 rtGetPageOfAddress(u32 addr) {
 	return PAGE_OF_ADDR(addr);
