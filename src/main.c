@@ -19,17 +19,18 @@ int main(void){
 	// コンソールの初期化
 	consoleInit(GFX_TOP, &topScreenConsole);
 
-	// 背景を色々に設定 文字色を黒に設定
+	// 背景を白色に設定 文字色を黒に設定
     topScreenConsole.bg = CONSOLE_WHITE;
-	topScreenConsole.fg = 0;
-	
-	// 一応 コンソールをクリア
-    consoleClear();
-    //
+	topScreenConsole.fg = CONSOLE_BLACK;
+
+	// 画面を空白埋め
+	consoleClear();
 
     // new 3dsか確認
-    s64 out;
-	if(svcGetSystemInfo(&out, 0x10001, 0) != 0){
+	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
+    bool is_n3ds;
+	PTMSYSM_CheckNew3DS(&is_n3ds);
+	if(is_n3ds != 1){
 		printf("N3ds専用¥n");
 		goto deinit;
 	}
@@ -49,15 +50,15 @@ int main(void){
         topScreenConsole.bg = CONSOLE_RED;
 	}
 
-	const char* msg[2][10] = {
-		"有効化",
-		"無効化"
+	const char* msg[] = {
+		"QTMを有効化",
+		"QTMを無効化"
 	};
 	
-	printf("QTMを%c", msg[qtmDisabled]);
+	printf("・%s\n", msg[qtmDisabled]);
 	
 	//
-	gfxFlushBuffers();();
+	gfxFlushBuffers();
 
     // 画面描画が完了するまで待機
     gspWaitForVBlank();
