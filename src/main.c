@@ -17,6 +17,7 @@ int main(void){
     // デフォルトでグラフィック初期化
 	gfxInitDefault();
 	// コンソールの初期化
+	PrintConsole topScreenConsole;
 	consoleInit(GFX_TOP, &topScreenConsole);
 
 	// 背景を白色に設定 文字色を黒に設定
