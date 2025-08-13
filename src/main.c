@@ -15,7 +15,7 @@ void rpDoQTMPatchAndToggle(void);
 // https://rgbcolorpicker.com/0-1
 #define BLACK_COLOR 0b0000
 #define GREEN_COLOR 0b1010
-#define RED_COLOR 0b0101
+#define MAGENTA_COLOR 0b0101
 #define WHITE_COLOR 0b1111
 
 // 0b0101 紫色
@@ -85,7 +85,7 @@ int main(void)
 	}
 	else
 	{
-		topScreenConsole.bg = RED_COLOR;
+		topScreenConsole.bg = MAGENTA_COLOR;
 	}
 
 	const char *msg[] = {
