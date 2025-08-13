@@ -16,7 +16,7 @@ void rpDoQTMPatchAndToggle(void);
 #define BLACK_COLOR 0
 #define GREEN_COLOR 2
 #define RED_COLOR 4
-#define WHITE_COLOR 15
+#define IDK_COLOR 10
 
 // 結果のリザルト
 int result = 0;
@@ -42,15 +42,11 @@ int main(void)
 	consoleInit(GFX_TOP, &topScreenConsole);
 
 	// 背景を白色に設定 文字色を黒に設定
-	topScreenConsole.bg = WHITE_COLOR;
+	topScreenConsole.bg = IDK_COLOR;
 	topScreenConsole.fg = BLACK_COLOR;
 
 	// 画面を空白埋め
 	consoleClear();
-
-	printf("\x1b[16;20HStart");
-
-	svcSleepThread(10 * 1000 * 1000);
 
 	// --------------------------------------------------
 
@@ -63,7 +59,7 @@ int main(void)
 	}
 	else if (isN3DS != 1)
 	{
-		printf("\x1b[16;20HN3ds専用\n");
+		printf("\x1b[16;20HN3ds Only\n");
 		skip = true;
 	}
 
@@ -82,7 +78,7 @@ int main(void)
 	}
 	else if (result == 0)
 	{
-		printf("\x1b[16;20H結果無し\n");
+		printf("\x1b[16;20HNot Result\n");
 	}
 	else
 	{
@@ -90,8 +86,8 @@ int main(void)
 	}
 
 	const char *msg[] = {
-		"QTMを有効化",
-		"QTMを無効化"};
+		"QTM Enabled",
+		"QTM Disabled"};
 
 	printf("\x1b[16;20H・%s\n", msg[qtmDisabled]);
 
@@ -115,6 +111,7 @@ int main(void)
 
 	// 終了
 
+	svcSleepThread(100000);
 	//
 	gfxExit();
 
