@@ -3,92 +3,109 @@
 #include <3ds/gfx.h>
 #include <3ds/types.h>
 #include <3ds/services/hid.h>
-#include <3ds.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
 // https://rgbcolorpicker.com/0-1
-#define BLACK_COLOR	0
+#define BLACK_COLOR 0
 #define GREEN_COLOR 2
-#define RED_COLOR   4
+#define RED_COLOR 4
 #define WHITE_COLOR 15
 
 // 結果のリザルト
 extern int result;
 // 有効又は無効か
 extern bool qtmDisabled;
-// 
+//
 extern PrintConsole topScreenConsole;
 
 // https://github.com/devkitPro/3ds-examples/tree/master/qtm
 
-int main(void){
+int main(void)
+{
 
 	result = 0;
 	qtmDisabled = false;
 
 	bool skip = false;
-	
-    // デフォルトでグラフィック初期化
+	bool is_n3ds = false;
+
+	// --------------------------------------------------
+
+	// デフォルトでグラフィック初期化
 	gfxInitDefault();
 	// コンソールの初期化
-// PrintConsole topScreenConsole;
 	consoleInit(GFX_TOP, &topScreenConsole);
 
 	// 背景を白色に設定 文字色を黒に設定
-    topScreenConsole.bg = WHITE_COLOR;
+	topScreenConsole.bg = WHITE_COLOR;
 	topScreenConsole.fg = BLACK_COLOR;
 
 	// 画面を空白埋め
 	consoleClear();
 
-    // new 3dsか確認
+	// --------------------------------------------------
+
+	// new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
-    bool is_n3ds = false;
 	PTMSYSM_CheckNew3DS(&is_n3ds);
-	if(is_n3ds != 1){
+	if (is_n3ds != 1)
+	{
 		printf("N3ds専用¥n");
 		skip = true;
 	}
 
 	// QTMを有効または無効化
-	// if(!skip)
-	//	rpDoQTMPatchAndToggle();
+	if (!skip)
+		rpDoQTMPatchAndToggle();
 
+	// 結果
+	// --------------------------------------------------
 	// 初期 : 白  null
 	// 成功 : 緑     1
 	// 失敗 : 赤    -1
-	if(result > 0){
+	if (result > 0)
+	{
 		topScreenConsole.bg = GREEN_COLOR;
-	}else{
-		if(result == 0){
-			printf("結果無し");
-		}
-        topScreenConsole.bg = RED_COLOR;
+	}
+	else if (result == 0)
+	{
+		printf("結果無し");
+	}
+	else
+	{
+		topScreenConsole.bg = RED_COLOR;
 	}
 
-	const char* msg[] = {
+	const char *msg[] = {
 		"QTMを有効化",
-		"QTMを無効化"
-	};
-	
+		"QTMを無効化"};
+
 	printf("・%s\n", msg[qtmDisabled]);
-	
+
+	// --------------------------------------------------
+
+	// 描画
+
 	//
 	gfxFlushBuffers();
+	// 画面描画が完了するまで待機
+	gspWaitForVBlank();
+	// ボタンが押されるまで待機
+	hidScanInput();
 
-    // 画面描画が完了するまで待機
-    gspWaitForVBlank();
+	// --------------------------------------------------
 
-    // ボタンが押されるまで待機
-    hidScanInput();
+	// 終了
 
-// deinit:
-
+	//
 	gfxExit();
 
-    return 0;
+	return 0;
 }
 
+vpod showDbg()
+{
+}
