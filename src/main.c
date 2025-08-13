@@ -56,17 +56,17 @@ int main(void)
 
 	// new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
-	Result res = PTMSYSM_CheckNew3DS(&isN3DS);
-	printf("\x1b[10;1H: new 3ds check: %u", res);
+	// Result res = PTMSYSM_CheckNew3DS(&isN3DS);
+	// printf("\x1b[10;10H: new 3ds check: %lu", res);
 	// {
-	// 	printf("\x1b[3;1Hn3ds ka wakaranai");
+	// 	printf("\x1b[3;10Hn3ds ka wakaranai");
 	// 	skip = true;
 	// 	result = -1;
 	// }
 	// else
 	if (isN3DS != true)
 	{
-		printf("\x1b[8;1HN3ds nomi");
+		printf("\x1b[8;10HN3ds nomi");
 		skip = true;
 		result = -1;
 	}
@@ -82,7 +82,7 @@ int main(void)
 	// 失敗 : 赤    -1
 	if (result == 0)
 	{
-		printf("\x1b[6;1Hkekka nashi");
+		printf("\x1b[6;10Hkekka nashi");
 	}
 	else if (result > 0)
 	{
@@ -100,7 +100,7 @@ int main(void)
 		"mukou ka",
 		"yuukou ka"};
 
-	printf("\x1b[8;1HQTM wo %s", msg[qtmDisabled]);
+	printf("\x1b[8;10HQTM wo %s", msg[qtmDisabled]);
 
 skip_point:
 	// --------------------------------------------------
