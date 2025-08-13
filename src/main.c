@@ -25,7 +25,7 @@ void rpDoQTMPatchAndToggle(void);
 // 結果のリザルト
 int result = 0;
 // 有効又は無効か
-bool qtmDisabled;
+int qtmDisabled = 0;
 //
 // bool isN3DS = true;
 //
@@ -52,23 +52,33 @@ int main(void)
 	// 画面を空白埋め
 	consoleClear();
 
+	const char *status_msg[] = {
+		"[is new 3ds check ]",
+		"[result           ]",
+		"[error            ]"};
+	for (u8 i = 1; i < sizeof status_msg; i++)
+	{
+		printf("\x1b[1;%uH%s:", 2 + 2 * i, status_msg[i]);
+	}
+
 	// --------------------------------------------------
 
 	// new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
-	// if (PTMSYSM_CheckNew3DS(&isN3DS) < 0)
+	Result res = PTMSYSM_CheckNew3DS(&isN3DS);
+	printf("\x1b[10;10H: %u", res);
 	// {
-	// 	printf("\x1b[3;1Hn3ds ka wakaranai\n");
+	// 	printf("\x1b[3;1Hn3ds ka wakaranai");
 	// 	skip = true;
 	// 	result = -1;
 	// }
 	// else
-	// if (isN3DS != 1)
-	// {
-	// 	printf("\x1b[6;1HN3ds nomi\n");
-	// 	skip = true;
-	// 	result = -1;
-	// }
+	if (isN3DS != 1)
+	{
+		printf("\x1b[10;8HN3ds nomi");
+		skip = true;
+		result = -1;
+	}
 
 	// QTMを有効または無効化
 	if (!skip)
@@ -79,13 +89,13 @@ int main(void)
 	// 初期 : 白  null
 	// 成功 : 緑     1
 	// 失敗 : 赤    -1
-	if (result > 0)
+	if (result == 0)
+	{
+		printf("\x1b[10;6Hkekka nashi");
+	}
+	else if (result > 0)
 	{
 		topScreenConsole.bg = GREEN_COLOR;
-	}
-	else if (result == 0)
-	{
-		printf("\x1b[9;1Hkekka nashi\n");
 	}
 	else
 	{
@@ -96,10 +106,10 @@ int main(void)
 		goto skip_point;
 
 	const char *msg[] = {
-		"QTM wo yuukou ka",
-		"QTM wo mukou ka"};
+		"QTM wo mukou ka",
+		"QTM wo yuukou ka"};
 
-	printf("\x1b[12;1H%s\n", msg[qtmDisabled]);
+	printf("\x1b[10;8H%s", msg[qtmDisabled]);
 
 skip_point:
 	// --------------------------------------------------
@@ -125,7 +135,7 @@ skip_point:
 
 	// 終了
 
-	svcSleepThread(100000);
+	// svcSleepThread(100000);
 	//
 	gfxExit();
 
