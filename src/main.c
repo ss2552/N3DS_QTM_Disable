@@ -52,9 +52,11 @@ int main(void)
 	PTMSYSM_CheckNew3DS(&is_n3ds);
 	if (is_n3ds != 1)
 	{
-		printf("N3ds専用¥n");
+		printf("\x1b[16;20HN3ds専用¥n");
 		skip = true;
 	}
+
+	hidScanInput();
 
 	// QTMを有効または無効化
 	if (!skip)
@@ -71,7 +73,7 @@ int main(void)
 	}
 	else if (result == 0)
 	{
-		printf("結果無し");
+		printf("\x1b[16;20H結果無し\n");
 	}
 	else
 	{
@@ -82,7 +84,7 @@ int main(void)
 		"QTMを有効化",
 		"QTMを無効化"};
 
-	printf("・%s\n", msg[qtmDisabled]);
+	printf("\x1b[16;20H・%s\n", msg[qtmDisabled]);
 
 	// --------------------------------------------------
 

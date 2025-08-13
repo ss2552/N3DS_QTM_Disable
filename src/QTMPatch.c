@@ -1,14 +1,11 @@
-// #include "3ds/services/soc.h"
 #include "3ds/types.h"
 #include "3ds/svc.h"
-// #include "3ds/os.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <memory.h>
-// #include <errno.h>
 
 void rpDoQTMPatchAndToggle(void);
 
