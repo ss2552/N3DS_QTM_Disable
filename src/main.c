@@ -46,7 +46,7 @@ int main(void){
 
     // new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
-    bool is_n3ds;
+    bool is_n3ds = false;
 	PTMSYSM_CheckNew3DS(&is_n3ds);
 	if(is_n3ds != 1){
 		printf("N3ds専用¥n");
@@ -54,8 +54,8 @@ int main(void){
 	}
 
 	// QTMを有効または無効化
-	if(!skip)
-		rpDoQTMPatchAndToggle();
+	// if(!skip)
+	//	rpDoQTMPatchAndToggle();
 
 	// 初期 : 白  null
 	// 成功 : 緑     1
@@ -85,7 +85,7 @@ int main(void){
     // ボタンが押されるまで待機
     hidScanInput();
 
-deinit:
+// deinit:
 
 	gfxExit();
 
