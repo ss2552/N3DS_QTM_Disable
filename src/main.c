@@ -2,6 +2,7 @@
 #include <3ds/services/apt.h>
 #include <3ds/console.h>
 #include <3ds/gfx.h>
+#include <3ds/svc.h>
 #include <3ds/types.h>
 #include <3ds/services/hid.h>
 #include <stdio.h>
@@ -22,7 +23,9 @@ int result = 0;
 // 有効又は無効か
 bool qtmDisabled = false;
 //
-PrintConsole topScreenConsole;
+bool isN3DS = false :
+	//
+	PrintConsole topScreenConsole;
 
 // https://github.com/devkitPro/3ds-examples/tree/master/qtm
 
@@ -53,9 +56,14 @@ int main(void)
 
 	// new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
-	if (!PTMSYSM_CheckNew3DS())
+	if (PTMSYSM_CheckNew3DS(&isN3DS) < 0)
 	{
-		printf("\x1b[16;20HN3ds専用¥n");
+		printf("\x1b[16;20HErr\n");
+		skip = true;
+	}
+	else if (isN3DS != 1)
+	{
+		printf("\x1b[16;20HN3ds専用\n");
 		skip = true;
 	}
 
