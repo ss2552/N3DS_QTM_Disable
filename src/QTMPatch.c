@@ -14,7 +14,9 @@ void rpDoQTMPatchAndToggle(void);
 
 static int qtmPatched = 0;
 static int qtmPayloadAddr = 0;
-// static int qtmDisabled = 0;
+extern static int qtmDisabled;
+extern int result;
+extern PrintConsole topScreenConsole;
 
 static u32 currentPid = 0;
 u32 getCurrentProcessId(void)
@@ -73,10 +75,14 @@ u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc
 	return 0;
 }
 
+#define COPY_REMOTE_MEMORY_TIMEOUT (-1)
+
 u32 copyRemoteMemory(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc, u32 size)
 {
 	return copyRemoteMemoryTimeout(hDst, ptrDst, hSrc, ptrSrc, size, COPY_REMOTE_MEMORY_TIMEOUT);
 }
+
+#define PAGE_OF_ADDR(addr) ((addr) / 0x1000 * 0x1000)
 
 u32 rtGetPageOfAddress(u32 addr)
 {
@@ -122,6 +128,22 @@ u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm)
 }
 
 #define RP_QTM_HDR_SIZE (4)
+
+typedef enum ProcessOp
+{
+	PROCESSOP_GET_ALL_HANDLES,
+
+	PROCESSOP_SET_MMU_TO_RWX,
+
+	PROCESSOP_GET_ON_MEMORY_CHANGE_EVENT,
+
+	PROCESSOP_SIGNAL_ON_EXIT,
+
+	PROCESSOP_GET_PA_FROM_VA,
+
+	PROCESSOP_SCHEDULE_THREADS,
+
+} ProcessOp;
 
 // When enabling this patch, the qtm camera service usage is more or less disabled.
 // This increases performance on New 3DS for remote play by up to 20%.
