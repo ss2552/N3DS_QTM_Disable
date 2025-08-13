@@ -21,18 +21,18 @@ void rpDoQTMPatchAndToggle(void);
 // 結果のリザルト
 int result = 0;
 // 有効又は無効か
-bool qtmDisabled = false;
+bool qtmDisabled;
 //
 bool isN3DS = false;
 //
 PrintConsole topScreenConsole;
-//
-bool skip = false;
 
 // https://github.com/devkitPro/3ds-examples/tree/master/qtm
 
 int main(void)
 {
+	//
+	bool skip = false;
 
 	// --------------------------------------------------
 

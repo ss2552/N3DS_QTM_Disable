@@ -38,26 +38,26 @@ u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc
 	ret = svcFlushProcessDataCache(hSrc, (u32)ptrSrc, size);
 	if (ret != 0)
 	{
-		//"svcFlushProcessDataCache src failed: %08"PRIx32"\n", ret);
+		printf("svcFlushProcessDataCache src failed: %08\n", ret);
 		return ret;
 	}
 	ret = svcFlushProcessDataCache(hDst, (u32)ptrDst, size);
 	if (ret != 0)
 	{
-		//"svcFlushProcessDataCache dst failed: %08"PRIx32"\n", ret);
+		printf("svcFlushProcessDataCache dst failed: %08\n", ret);
 		return ret;
 	}
 
 	ret = svcStartInterProcessDma(&hdma, hDst, (u32)ptrDst, hSrc, (u32)ptrSrc, size, (DmaConfig *)dmaConfig);
 	if (ret != 0)
 	{
-		//"svcStartInterProcessDma failed: %08"PRIx32"\n", ret);
+		printf("svcStartInterProcessDma failed: %08\n", ret);
 		return ret;
 	}
 	ret = svcWaitSynchronization(hdma, timeout);
 	if (ret != 0)
 	{
-		//"copyRemoteMemory time out (or error) %08"PRIx32, ret);
+		printf("copyRemoteMemory time out (or error) %08", ret);
 		svcCloseHandle(hdma);
 		return 1;
 	}
@@ -66,7 +66,7 @@ u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc
 	ret = svcInvalidateProcessDataCache(hDst, (u32)ptrDst, size);
 	if (ret != 0)
 	{
-		//"svcInvalidateProcessDataCache failed: %08"PRIx32"\n", ret);
+		printf("svcInvalidateProcessDataCache failed: %08\n", ret);
 		return ret;
 	}
 	return 0;
@@ -93,7 +93,7 @@ u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm)
 	s32 ret = svcQueryMemory(&memInfo, &pageInfo, addr);
 	if (ret != 0)
 	{
-		//"svcQueryMemory failed for addr %08"PRIx32": %08"PRIx32"\n", addr, ret);
+		printf("svcQueryMemory failed for addr %08: %08\n", addr, ret);
 		return ret;
 	}
 	if (memInfo.perm == 0)
@@ -169,7 +169,7 @@ void rpDoQTMPatchAndToggle(void)
 	ret = svcOpenProcess(&hProcess, pid);
 	if (ret != 0)
 	{
-		//"Open QTM process failed: %08"PRIx32, ret);
+		printf("Open QTM process failed: %08", ret);
 		hProcess = 0;
 		goto final;
 	}
@@ -179,13 +179,13 @@ void rpDoQTMPatchAndToggle(void)
 		ret = copyRemoteMemory(CUR_PROCESS_HANDLE, buf, hProcess, (void *)remotePC, RP_QTM_HDR_SIZE);
 		if (ret != 0)
 		{
-			//"Read QTM memory at %08"PRIx32" failed: %08"PRIx32, remotePC, ret);
+			printf("Read QTM memory at %08 failed: %08", remotePC, ret);
 			goto final;
 		}
 
 		if (memcmp(buf, desiredHeader, RP_QTM_HDR_SIZE) != 0)
 		{
-			//"Unexpected QTM memory content");
+			printf("Unexpected QTM memory content");
 			goto final;
 		}
 	}
@@ -193,7 +193,7 @@ void rpDoQTMPatchAndToggle(void)
 	ret = svcControlProcess(hProcess, PROCESSOP_SCHEDULE_THREADS, 1, 0);
 	if (ret != 0)
 	{
-		//"Locking QTM failed: %08"PRIx32"\n", ret);
+		printf("Locking QTM failed: %08\n", ret);
 		goto final;
 	}
 
@@ -214,7 +214,7 @@ void rpDoQTMPatchAndToggle(void)
 		ret = rtCheckRemoteMemory(hProcess, remotePC, RP_QTM_HDR_SIZE, MEMPERM_READWRITE | MEMPERM_EXECUTE);
 		if (ret != 0)
 		{
-			//"QTM protectRemoteMemory failed: %08"PRIx32, ret);
+			printf("QTM protectRemoteMemory failed: %08", ret);
 			goto final_unlock;
 		}
 
@@ -228,7 +228,7 @@ void rpDoQTMPatchAndToggle(void)
 		retry:
 			if (qtmPayloadAddrTry < qtmPayloadAddrMin)
 			{
-				//"Unable to find free space to install QTM payload\n");
+				printf("Unable to find free space to install QTM payload\n");
 				goto final_unlock;
 			}
 
@@ -237,7 +237,7 @@ void rpDoQTMPatchAndToggle(void)
 			ret = copyRemoteMemory(CUR_PROCESS_HANDLE, tmp, hProcess, (void *)qtmPayloadAddrTry, RP_QTM_PAYLOAD_SIZE);
 			if (ret != 0)
 			{
-				//"Read QTM memory at %08"PRIx32" failed: %08"PRIx32, qtmPayloadAddrTry, ret);
+				printf("Read QTM memory at %08 failed: %08", qtmPayloadAddrTry, ret);
 				goto final_unlock;
 			}
 
@@ -256,14 +256,14 @@ void rpDoQTMPatchAndToggle(void)
 		ret = rtCheckRemoteMemory(hProcess, qtmPayloadAddrTry, RP_QTM_PAYLOAD_SIZE, MEMPERM_READWRITE | MEMPERM_EXECUTE);
 		if (ret != 0)
 		{
-			//"QTM protectRemoteMemory for payload failed: %08"PRIx32, ret);
+			printf("QTM protectRemoteMemory for payload failed: %08", ret);
 			goto final_unlock;
 		}
 
 		ret = copyRemoteMemory(hProcess, (void *)qtmPayloadAddrTry, CUR_PROCESS_HANDLE, payload, RP_QTM_PAYLOAD_SIZE);
 		if (ret != 0)
 		{
-			//"Write QTM memory for payload at %08"PRIx32" failed: %08"PRIx32, qtmPayloadAddrTry, ret);
+			printf("Write QTM memory for payload at %08 failed: %08", qtmPayloadAddrTry, ret);
 			goto final_unlock;
 		}
 
@@ -280,24 +280,24 @@ void rpDoQTMPatchAndToggle(void)
 		ret = copyRemoteMemory(hProcess, (void *)remotePC, CUR_PROCESS_HANDLE, &replacementInst, RP_QTM_HDR_SIZE);
 		if (ret != 0)
 		{
-			//"Write QTM memory at %08"PRIx32" failed: %08"PRIx32, remotePC, ret);
+			printf("Write QTM memory at %08 failed: %08", remotePC, ret);
 			goto final_unlock;
 		}
 
 		qtmDisabled = 1;
-		//"Patch QTM success");
+		printf("Patch QTM success");
 	}
 	else
 	{
 		ret = copyRemoteMemory(hProcess, (void *)remotePC, CUR_PROCESS_HANDLE, desiredHeader, RP_QTM_HDR_SIZE);
 		if (ret != 0)
 		{
-			//"Restore QTM memory at %08"PRIx32" failed: %08"PRIx32, remotePC, ret);
+			printf("Restore QTM memory at %08 failed: %08", remotePC, ret);
 			goto final_unlock;
 		}
 
 		qtmDisabled = 0;
-		//"Restore QTM success");
+		printf("Restore QTM success");
 	}
 
 final_unlock:
@@ -305,7 +305,7 @@ final_unlock:
 	if (ret != 0)
 	{
 		goto final;
-		//"Unlocking QTM process failed: %08"PRIx32"\n", ret);
+		printf("Unlocking QTM process failed: %08\n", ret);
 	}
 
 final:
