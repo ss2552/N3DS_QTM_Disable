@@ -55,7 +55,7 @@ int main(void)
 
 	// new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
-	if (PTMSYSM_CheckNew3DS(&isN3DS) < 0)
+	if (!PTMSYSM_CheckNew3DS(&isN3DS))
 	{
 		printf("\x1b[3;1Hn3ds ka wakaranai\n");
 		skip = true;
