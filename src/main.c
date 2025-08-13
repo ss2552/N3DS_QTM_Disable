@@ -26,7 +26,7 @@ int result = 0;
 // 有効又は無効か
 bool qtmDisabled;
 //
-bool isN3DS = false;
+bool isN3DS = true;
 //
 PrintConsole topScreenConsole;
 
@@ -55,7 +55,7 @@ int main(void)
 
 	// new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
-	if (!PTMSYSM_CheckNew3DS(&isN3DS))
+	if (PTMSYSM_CheckNew3DS(&isN3DS) < 0)
 	{
 		printf("\x1b[3;1Hn3ds ka wakaranai\n");
 		skip = true;
@@ -63,7 +63,7 @@ int main(void)
 	}
 	else if (isN3DS != 1)
 	{
-		printf("\x1b[6;1HN3ds nomo\n");
+		printf("\x1b[6;1HN3ds nomi\n");
 		skip = true;
 		result = -1;
 	}
