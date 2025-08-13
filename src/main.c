@@ -1,4 +1,5 @@
 #include <3ds/services/ptmsysm.h>
+#include <3ds/services/apt.h>
 #include <3ds/console.h>
 #include <3ds/gfx.h>
 #include <3ds/types.h>
@@ -90,12 +91,17 @@ int main(void)
 
 	// 描画
 
-	//
-	gfxFlushBuffers();
-	// 画面描画が完了するまで待機
-	gspWaitForVBlank();
-	// ボタンが押されるまで待機
-	hidScanInput();
+	while (aptMainLoop())
+	{
+
+		//
+		gfxFlushBuffers();
+		// 画面描画が完了するまで待機
+		gspWaitForVBlank();
+
+		// ボタンが押されるまで待機
+		hidScanInput();
+	}
 
 	// --------------------------------------------------
 
