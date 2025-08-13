@@ -15,8 +15,8 @@ void rpDoQTMPatchAndToggle(void);
 static int qtmPatched = 0;
 static int qtmPayloadAddr = 0;
 extern static int qtmDisabled;
+
 extern int result;
-extern PrintConsole topScreenConsole;
 
 static u32 currentPid = 0;
 u32 getCurrentProcessId(void)

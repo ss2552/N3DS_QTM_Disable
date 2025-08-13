@@ -17,19 +17,16 @@ void rpDoQTMPatchAndToggle(void);
 #define WHITE_COLOR 15
 
 // 結果のリザルト
-extern int result;
+int result = 0;
 // 有効又は無効か
-extern bool qtmDisabled;
+bool qtmDisabled = false;
 //
-extern PrintConsole topScreenConsole;
+PrintConsole topScreenConsole;
 
 // https://github.com/devkitPro/3ds-examples/tree/master/qtm
 
 int main(void)
 {
-
-	result = 0;
-	qtmDisabled = false;
 
 	bool skip = false;
 	bool is_n3ds = false;
