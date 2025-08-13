@@ -3,10 +3,14 @@
 #include "3ds/svc.h"
 // #include "3ds/os.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include <memory.h>
 // #include <errno.h>
 
-extern void rpDoQTMPatchAndToggle(void);
+void rpDoQTMPatchAndToggle(void);
 
 static int qtmPatched = 0;
 static int qtmPayloadAddr = 0;
@@ -21,12 +25,12 @@ u32 getCurrentProcessId(void)
 	return currentPid;
 }
 
-inline u32 protectRemoteMemory(Handle hProcess, void *addr, u32 size, u32 perm)
+u32 protectRemoteMemory(Handle hProcess, void *addr, u32 size, u32 perm)
 {
 	return svcControlProcessMemory(hProcess, (u32)addr, 0, size, MEMOP_PROT, perm);
 }
 
-inline u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc, u32 size, s64 timeout)
+u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc, u32 size, s64 timeout)
 {
 	u8 dmaConfig[sizeof(DmaConfig)] = {-1, 0, 4};
 	u32 hdma = 0;
@@ -69,17 +73,17 @@ inline u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void 
 	return 0;
 }
 
-inline u32 copyRemoteMemory(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc, u32 size)
+u32 copyRemoteMemory(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc, u32 size)
 {
 	return copyRemoteMemoryTimeout(hDst, ptrDst, hSrc, ptrSrc, size, COPY_REMOTE_MEMORY_TIMEOUT);
 }
 
-inline u32 rtGetPageOfAddress(u32 addr)
+u32 rtGetPageOfAddress(u32 addr)
 {
 	return PAGE_OF_ADDR(addr);
 }
 
-inline u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm)
+u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm)
 {
 	MemInfo memInfo;
 	PageInfo pageInfo;

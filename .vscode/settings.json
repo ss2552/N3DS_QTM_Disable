@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "AppInfo": "ini",
+        "string.h": "c"
+    }
+}

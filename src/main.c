@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+void rpDoQTMPatchAndToggle(void);
+
 // https://rgbcolorpicker.com/0-1
 #define BLACK_COLOR 0
 #define GREEN_COLOR 2
