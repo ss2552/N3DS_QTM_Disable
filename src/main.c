@@ -58,7 +58,7 @@ int main(void)
 		"[error            ]"};
 	for (u8 i = 1; i < sizeof status_msg; i++)
 	{
-		printf("\x1b[1;%luH%s:", 2 + 2 * i, status_msg[i]);
+		printf("\x1b[%lu;1H%s:", 2 + 2 * i, status_msg[i]);
 	}
 
 	// --------------------------------------------------
@@ -75,7 +75,7 @@ int main(void)
 	// else
 	if (isN3DS != 1)
 	{
-		printf("\x1b[10;8HN3ds nomi");
+		printf("\x1b[8;10HN3ds nomi");
 		skip = true;
 		result = -1;
 	}
@@ -91,7 +91,7 @@ int main(void)
 	// 失敗 : 赤    -1
 	if (result == 0)
 	{
-		printf("\x1b[10;6Hkekka nashi");
+		printf("\x1b[6;10Hkekka nashi");
 	}
 	else if (result > 0)
 	{
@@ -109,7 +109,7 @@ int main(void)
 		"QTM wo mukou ka",
 		"QTM wo yuukou ka"};
 
-	printf("\x1b[10;8H%s", msg[qtmDisabled]);
+	printf("\x1b[8;10H%s", msg[qtmDisabled]);
 
 skip_point:
 	// --------------------------------------------------
