@@ -14,7 +14,7 @@ void rpDoQTMPatchAndToggle(void);
 
 static int qtmPatched = 0;
 static int qtmPayloadAddr = 0;
-extern static int qtmDisabled;
+extern int qtmDisabled;
 
 extern int result;
 
@@ -144,6 +144,8 @@ typedef enum ProcessOp
 	PROCESSOP_SCHEDULE_THREADS,
 
 } ProcessOp;
+
+Result svcControlProcess(Handle process, ProcessOp op, u32 varg2, u32 varg3);
 
 // When enabling this patch, the qtm camera service usage is more or less disabled.
 // This increases performance on New 3DS for remote play by up to 20%.
