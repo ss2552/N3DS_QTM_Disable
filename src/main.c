@@ -59,11 +59,13 @@ int main(void)
 	{
 		printf("\x1b[3;1Hn3ds ka wakaranai\n");
 		skip = true;
+		result = -1;
 	}
 	else if (isN3DS != 1)
 	{
 		printf("\x1b[6;1HN3ds nomo\n");
 		skip = true;
+		result = -1;
 	}
 
 	// QTMを有効または無効化
@@ -88,12 +90,16 @@ int main(void)
 		topScreenConsole.bg = MAGENTA_COLOR;
 	}
 
+	if (skip)
+		goto skip_point;
+
 	const char *msg[] = {
 		"QTM wo yuukou ka",
 		"QTM wo mukou ka"};
 
 	printf("\x1b[12;1H%s\n", msg[qtmDisabled]);
 
+skip_point:
 	// --------------------------------------------------
 
 	// 描画
@@ -101,13 +107,16 @@ int main(void)
 	while (aptMainLoop())
 	{
 
+		// ボタンが押されるまで待機
+		hidScanInput();
+
+		if (hidKeysDown())
+			break;
+
 		//
 		gfxFlushBuffers();
 		// 画面描画が完了するまで待機
 		gspWaitForVBlank();
-
-		// ボタンが押されるまで待機
-		hidScanInput();
 	}
 
 	// --------------------------------------------------

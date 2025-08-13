@@ -1,5 +1,7 @@
 #include <3ds/types.h>
 #include <3ds/svc.h>
+#include <3ds/console.h>
+#include <3ds/gfx.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -285,6 +287,7 @@ void rpDoQTMPatchAndToggle(void)
 		}
 
 		qtmDisabled = 1;
+		result = 1;
 		printf("\x1b[16;10HPatch QTM success");
 	}
 	else
@@ -297,6 +300,7 @@ void rpDoQTMPatchAndToggle(void)
 		}
 
 		qtmDisabled = 0;
+		result = -1;
 		printf("\x1b[16;10HRestore QTM success");
 	}
 
