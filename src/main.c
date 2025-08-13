@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-// https://rgbcolorpicker.com/565
-#define BLACK_COLOR	RGB565(  0,  0,  0)
-#define GREEN_COLOR RGB565(  0, 63,  0)
-#define RED_COLOR   RGB565( 63,  0,  0)
-#define WHITE_COLOR RGB565( 63, 63, 63)
+// https://rgbcolorpicker.com/0-1
+#define BLACK_COLOR	0
+#define GREEN_COLOR 2
+#define RED_COLOR   4
+#define WHITE_COLOR 15
 
 // 結果のリザルト
 extern int result;
@@ -29,7 +29,7 @@ int main(void){
 
 	// 背景を白色に設定 文字色を黒に設定
     topScreenConsole.bg = WHITE_COLOR;
-	topScreenConsole.fg = WHITE_BLACK;
+	topScreenConsole.fg = BLACK_COLOR;
 
 	// 画面を空白埋め
 	consoleClear();
