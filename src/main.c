@@ -4,11 +4,11 @@
 #include <3ds/svc.h>
 #include <3ds/services/hid.h>
 #include <3ds/services/apt.h>
+#include <3ds/services/ptmsysm.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-// #include <3ds/services/ptmsysm.h>
 
 void rpDoQTMPatchAndToggle(void);
 
@@ -27,14 +27,14 @@ int result = 0;
 // 有効又は無効か
 int qtmDisabled = 0;
 //
-// bool isN3DS = true;
-//
 PrintConsole topScreenConsole;
 
 // https://github.com/devkitPro/3ds-examples/tree/master/qtm
 
 int main(void)
 {
+	//
+	bool isN3DS = true;
 	//
 	bool skip = false;
 
@@ -58,7 +58,7 @@ int main(void)
 		"[error            ]"};
 	for (u8 i = 1; i < sizeof status_msg; i++)
 	{
-		printf("\x1b[1;%uH%s:", 2 + 2 * i, status_msg[i]);
+		printf("\x1b[1;%luH%s:", 2 + 2 * i, status_msg[i]);
 	}
 
 	// --------------------------------------------------
