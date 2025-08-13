@@ -4,7 +4,7 @@
 #include <3ds/svc.h>
 #include <3ds/services/hid.h>
 #include <3ds/services/apt.h>
-// #include <3ds/services/ptmsysm.h>
+#include <3ds/services/ptmsysm.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -34,7 +34,7 @@ PrintConsole topScreenConsole;
 int main(void)
 {
 	//
-	// bool isN3DS = true;
+	bool isN3DS = true;
 	//
 	bool skip = false;
 
@@ -56,20 +56,20 @@ int main(void)
 
 	// new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
-	// Result res = PTMSYSM_CheckNew3DS(&isN3DS);
-	// printf("\x1b[10;10H: new 3ds check: %lu", res);
+	Result res = PTMSYSM_CheckNew3DS(&isN3DS);
+	printf("\x1b[10;10H: new 3ds check: %lu", res);
 	// {
 	// 	printf("\x1b[3;10Hn3ds ka wakaranai");
 	// 	skip = true;
 	// 	result = -1;
 	// }
 	// else
-	// if (isN3DS != true)
-	// {
-	// 	printf("\x1b[8;10HN3ds nomi");
-	// 	skip = true;
-	// 	result = -1;
-	// }
+	if (isN3DS != true)
+	{
+		printf("\x1b[8;10HN3ds nomi");
+		skip = true;
+		result = -1;
+	}
 
 	// QTMを有効または無効化
 	if (!skip)
