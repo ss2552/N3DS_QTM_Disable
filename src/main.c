@@ -62,12 +62,12 @@ int main(void)
 	// 	result = -1;
 	// }
 	// else
-	if (isN3DS != 1)
-	{
-		printf("\x1b[6;1HN3ds nomi\n");
-		skip = true;
-		result = -1;
-	}
+	// if (isN3DS != 1)
+	// {
+	// 	printf("\x1b[6;1HN3ds nomi\n");
+	// 	skip = true;
+	// 	result = -1;
+	// }
 
 	// QTMを有効または無効化
 	if (!skip)
