@@ -1,8 +1,8 @@
-#include <3ds/services/apt.h>
+#include <3ds/types.h>
+// #include <3ds/services/apt.h>
 #include <3ds/console.h>
 #include <3ds/gfx.h>
 #include <3ds/svc.h>
-#include <3ds/types.h>
 #include <3ds/services/hid.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,10 +14,11 @@ void rpDoQTMPatchAndToggle(void);
 
 // https://rgbcolorpicker.com/0-1
 #define BLACK_COLOR 0b0000
-#define GREEN_COLOR 0b1010
+#define GREEN_COLOR 0b0010
 #define MAGENTA_COLOR 0b0101
 #define WHITE_COLOR 0b1111
 
+// ? b g r
 // 0b0101 紫色
 // 0b1010 緑
 
