@@ -4,7 +4,7 @@
 #include <3ds/svc.h>
 #include <3ds/services/hid.h>
 #include <3ds/services/apt.h>
-#include <3ds/services/ptmsysm.h>
+// #include <3ds/services/ptmsysm.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -34,7 +34,7 @@ PrintConsole topScreenConsole;
 int main(void)
 {
 	//
-	bool isN3DS = true;
+	// bool isN3DS = true;
 	//
 	bool skip = false;
 
@@ -64,12 +64,12 @@ int main(void)
 	// 	result = -1;
 	// }
 	// else
-	if (isN3DS != true)
-	{
-		printf("\x1b[8;10HN3ds nomi");
-		skip = true;
-		result = -1;
-	}
+	// if (isN3DS != true)
+	// {
+	// 	printf("\x1b[8;10HN3ds nomi");
+	// 	skip = true;
+	// 	result = -1;
+	// }
 
 	// QTMを有効または無効化
 	if (!skip)
