@@ -1,7 +1,14 @@
-#include <3ds.h>
+#include <3ds/console.h>
+#include <3ds/gfx.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// https://rgbcolorpicker.com/565
+#define BLACK_COLOR	RGB565(  0,  0,  0)
+#define GREEN_COLOR RGB565(  0, 63,  0)
+#define RED_COLOR   RGB565( 63,  0,  0)
+#define WHITE_COLOR RGB565( 63, 63, 63)
 
 // 結果のリザルト
 extern int result;
@@ -17,12 +24,12 @@ int main(void){
     // デフォルトでグラフィック初期化
 	gfxInitDefault();
 	// コンソールの初期化
-	PrintConsole topScreenConsole;
+// PrintConsole topScreenConsole;
 	consoleInit(GFX_TOP, &topScreenConsole);
 
 	// 背景を白色に設定 文字色を黒に設定
-    topScreenConsole.bg = CONSOLE_WHITE;
-	topScreenConsole.fg = CONSOLE_BLACK;
+    topScreenConsole.bg = WHITE_COLOR;
+	topScreenConsole.fg = WHITE_BLACK;
 
 	// 画面を空白埋め
 	consoleClear();
@@ -43,12 +50,12 @@ int main(void){
 	// 成功 : 緑     1
 	// 失敗 : 赤    -1
 	if(result > 0){
-		topScreenConsole.bg = CONSOLE_GREEN;
+		topScreenConsole.bg = GREEN_COLOR;
 	}else{
 		if(result == 0){
 			printf("結果無し");
 		}
-        topScreenConsole.bg = CONSOLE_RED;
+        topScreenConsole.bg = RED_COLOR;
 	}
 
 	const char* msg[] = {
