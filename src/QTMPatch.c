@@ -17,7 +17,7 @@ extern int qtmDisabled;
 
 extern int result;
 
-static u32 y_point = 1;
+static u8 y_point = 1;
 
 static u32 currentPid = 0;
 u32 getCurrentProcessId(void)
