@@ -1,7 +1,12 @@
+#include <3ds/services/ptmsysm.h>
 #include <3ds/console.h>
 #include <3ds/gfx.h>
+#include <3ds/types.h>
+#include <3ds/services/hid.h>
+#include <3ds.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
 // https://rgbcolorpicker.com/0-1
@@ -21,6 +26,11 @@ extern PrintConsole topScreenConsole;
 
 int main(void){
 
+	result = 0;
+	qtmDisabled = false;
+
+	bool skip = false;
+	
     // デフォルトでグラフィック初期化
 	gfxInitDefault();
 	// コンソールの初期化
@@ -40,11 +50,12 @@ int main(void){
 	PTMSYSM_CheckNew3DS(&is_n3ds);
 	if(is_n3ds != 1){
 		printf("N3ds専用¥n");
-		goto deinit;
+		skip = true;
 	}
 
 	// QTMを有効または無効化
-	rpDoQTMPatchAndToggle();
+	if(!skip)
+		rpDoQTMPatchAndToggle();
 
 	// 初期 : 白  null
 	// 成功 : 緑     1
