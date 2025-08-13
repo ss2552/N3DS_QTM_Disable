@@ -52,30 +52,21 @@ int main(void)
 	// 画面を空白埋め
 	consoleClear();
 
-	const char *status_msg[] = {
-		"[is new 3ds check ]",
-		"[result           ]",
-		"[error            ]"};
-	for (u8 i = 1; i < sizeof status_msg; i++)
-	{
-		printf("\x1b[%lu;1H%s:", 2 + 2 * i, status_msg[i]);
-	}
-
 	// --------------------------------------------------
 
 	// new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
 	Result res = PTMSYSM_CheckNew3DS(&isN3DS);
-	printf("\x1b[10;10H: %u", res);
+	printf("\x1b[10;1H: new 3ds check: %u", res);
 	// {
 	// 	printf("\x1b[3;1Hn3ds ka wakaranai");
 	// 	skip = true;
 	// 	result = -1;
 	// }
 	// else
-	if (isN3DS != 1)
+	if (isN3DS != true)
 	{
-		printf("\x1b[8;10HN3ds nomi");
+		printf("\x1b[8;1HN3ds nomi");
 		skip = true;
 		result = -1;
 	}
@@ -91,7 +82,7 @@ int main(void)
 	// 失敗 : 赤    -1
 	if (result == 0)
 	{
-		printf("\x1b[6;10Hkekka nashi");
+		printf("\x1b[6;1Hkekka nashi");
 	}
 	else if (result > 0)
 	{
@@ -106,10 +97,10 @@ int main(void)
 		goto skip_point;
 
 	const char *msg[] = {
-		"QTM wo mukou ka",
-		"QTM wo yuukou ka"};
+		"mukou ka",
+		"yuukou ka"};
 
-	printf("\x1b[8;10H%s", msg[qtmDisabled]);
+	printf("\x1b[8;1HQTM wo %s", msg[qtmDisabled]);
 
 skip_point:
 	// --------------------------------------------------
