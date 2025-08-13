@@ -38,26 +38,26 @@ u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc
 	ret = svcFlushProcessDataCache(hSrc, (u32)ptrSrc, size);
 	if (ret != 0)
 	{
-		printf("\x1b[16;10HsvcFlushProcessDataCache src failed: %u\n", ret);
+		printf("\x1b[16;10HsvcFlushProcessDataCache src failed: %lu\n", ret);
 		return ret;
 	}
 	ret = svcFlushProcessDataCache(hDst, (u32)ptrDst, size);
 	if (ret != 0)
 	{
-		printf("\x1b[16;10HsvcFlushProcessDataCache dst failed: %u\n", ret);
+		printf("\x1b[16;10HsvcFlushProcessDataCache dst failed: %lu\n", ret);
 		return ret;
 	}
 
 	ret = svcStartInterProcessDma(&hdma, hDst, (u32)ptrDst, hSrc, (u32)ptrSrc, size, (DmaConfig *)dmaConfig);
 	if (ret != 0)
 	{
-		printf("\x1b[16;10HsvcStartInterProcessDma failed: %u\n", ret);
+		printf("\x1b[16;10HsvcStartInterProcessDma failed: %lu\n", ret);
 		return ret;
 	}
 	ret = svcWaitSynchronization(hdma, timeout);
 	if (ret != 0)
 	{
-		printf("\x1b[16;10HcopyRemoteMemory time out (or error) %u", ret);
+		printf("\x1b[16;10HcopyRemoteMemory time out (or error) %lu", ret);
 		svcCloseHandle(hdma);
 		return 1;
 	}
@@ -66,7 +66,7 @@ u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc
 	ret = svcInvalidateProcessDataCache(hDst, (u32)ptrDst, size);
 	if (ret != 0)
 	{
-		printf("\x1b[16;10HsvcInvalidateProcessDataCache failed: %u\n", ret);
+		printf("\x1b[16;10HsvcInvalidateProcessDataCache failed: %lu\n", ret);
 		return ret;
 	}
 	return 0;
@@ -93,7 +93,7 @@ u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm)
 	s32 ret = svcQueryMemory(&memInfo, &pageInfo, addr);
 	if (ret != 0)
 	{
-		printf("\x1b[16;10HsvcQueryMemory failed for addr %d: %d\n", addr, ret);
+		printf("\x1b[16;10HsvcQueryMemory failed for addr %ld: %ld\n", addr, ret);
 		return ret;
 	}
 	if (memInfo.perm == 0)
@@ -169,7 +169,7 @@ void rpDoQTMPatchAndToggle(void)
 	ret = svcOpenProcess(&hProcess, pid);
 	if (ret != 0)
 	{
-		printf("\x1b[16;10HOpen QTM process failed: %d", ret);
+		printf("\x1b[16;10HOpen QTM process failed: %ld", ret);
 		hProcess = 0;
 		goto final;
 	}
@@ -179,7 +179,7 @@ void rpDoQTMPatchAndToggle(void)
 		ret = copyRemoteMemory(CUR_PROCESS_HANDLE, buf, hProcess, (void *)remotePC, RP_QTM_HDR_SIZE);
 		if (ret != 0)
 		{
-			printf("\x1b[16;10HRead QTM memory at %d failed: %d", remotePC, ret);
+			printf("\x1b[16;10HRead QTM memory at %ld failed: %ld", remotePC, ret);
 			goto final;
 		}
 
@@ -193,7 +193,7 @@ void rpDoQTMPatchAndToggle(void)
 	ret = svcControlProcess(hProcess, PROCESSOP_SCHEDULE_THREADS, 1, 0);
 	if (ret != 0)
 	{
-		printf("\x1b[16;10HLocking QTM failed: %d\n", ret);
+		printf("\x1b[16;10HLocking QTM failed: %ld\n", ret);
 		goto final;
 	}
 
@@ -214,7 +214,7 @@ void rpDoQTMPatchAndToggle(void)
 		ret = rtCheckRemoteMemory(hProcess, remotePC, RP_QTM_HDR_SIZE, MEMPERM_READWRITE | MEMPERM_EXECUTE);
 		if (ret != 0)
 		{
-			printf("\x1b[16;10HQTM protectRemoteMemory failed: %d", ret);
+			printf("\x1b[16;10HQTM protectRemoteMemory failed: %ld", ret);
 			goto final_unlock;
 		}
 
@@ -237,7 +237,7 @@ void rpDoQTMPatchAndToggle(void)
 			ret = copyRemoteMemory(CUR_PROCESS_HANDLE, tmp, hProcess, (void *)qtmPayloadAddrTry, RP_QTM_PAYLOAD_SIZE);
 			if (ret != 0)
 			{
-				printf("\x1b[16;10HRead QTM memory at %d failed: %d", qtmPayloadAddrTry, ret);
+				printf("\x1b[16;10HRead QTM memory at %ld failed: %ld", qtmPayloadAddrTry, ret);
 				goto final_unlock;
 			}
 
@@ -256,14 +256,14 @@ void rpDoQTMPatchAndToggle(void)
 		ret = rtCheckRemoteMemory(hProcess, qtmPayloadAddrTry, RP_QTM_PAYLOAD_SIZE, MEMPERM_READWRITE | MEMPERM_EXECUTE);
 		if (ret != 0)
 		{
-			printf("\x1b[16;10HQTM protectRemoteMemory for payload failed: %d", ret);
+			printf("\x1b[16;10HQTM protectRemoteMemory for payload failed: %ld", ret);
 			goto final_unlock;
 		}
 
 		ret = copyRemoteMemory(hProcess, (void *)qtmPayloadAddrTry, CUR_PROCESS_HANDLE, payload, RP_QTM_PAYLOAD_SIZE);
 		if (ret != 0)
 		{
-			printf("\x1b[16;10HWrite QTM memory for payload at %d failed: %d", qtmPayloadAddrTry, ret);
+			printf("\x1b[16;10HWrite QTM memory for payload at %ld failed: %ld", qtmPayloadAddrTry, ret);
 			goto final_unlock;
 		}
 
@@ -280,7 +280,7 @@ void rpDoQTMPatchAndToggle(void)
 		ret = copyRemoteMemory(hProcess, (void *)remotePC, CUR_PROCESS_HANDLE, &replacementInst, RP_QTM_HDR_SIZE);
 		if (ret != 0)
 		{
-			printf("\x1b[16;10HWrite QTM memory at %d failed: %d", remotePC, ret);
+			printf("\x1b[16;10HWrite QTM memory at %ld failed: %ld", remotePC, ret);
 			goto final_unlock;
 		}
 
@@ -292,7 +292,7 @@ void rpDoQTMPatchAndToggle(void)
 		ret = copyRemoteMemory(hProcess, (void *)remotePC, CUR_PROCESS_HANDLE, desiredHeader, RP_QTM_HDR_SIZE);
 		if (ret != 0)
 		{
-			printf("\x1b[16;10HRestore QTM memory at %d failed: %d", remotePC, ret);
+			printf("\x1b[16;10HRestore QTM memory at %ld failed: %ld", remotePC, ret);
 			goto final_unlock;
 		}
 
@@ -305,7 +305,7 @@ final_unlock:
 	if (ret != 0)
 	{
 		goto final;
-		printf("\x1b[16;10HUnlocking QTM process failed: %d\n", ret);
+		printf("\x1b[16;10HUnlocking QTM process failed: %ld\n", ret);
 	}
 
 final:

@@ -18,6 +18,9 @@ void rpDoQTMPatchAndToggle(void);
 #define RED_COLOR 0b0101
 #define WHITE_COLOR 0b1111
 
+// 0b0101 紫色
+// 0b1010 緑
+
 // 結果のリザルト
 int result = 0;
 // 有効又は無効か
@@ -42,7 +45,7 @@ int main(void)
 	consoleInit(GFX_TOP, &topScreenConsole);
 
 	// 背景を白色に設定 文字色を黒に設定
-	topScreenConsole.bg = RED_COLOR;
+	topScreenConsole.bg = WHITE_COLOR;
 	topScreenConsole.fg = BLACK_COLOR;
 
 	// 画面を空白埋め
@@ -54,12 +57,12 @@ int main(void)
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
 	if (PTMSYSM_CheckNew3DS(&isN3DS) < 0)
 	{
-		printf("\x1b[3;1HErr\n");
+		printf("\x1b[3;1Hn3ds ka wakaranai\n");
 		skip = true;
 	}
 	else if (isN3DS != 1)
 	{
-		printf("\x1b[6;1HN3ds Only\n");
+		printf("\x1b[6;1HN3ds nomo\n");
 		skip = true;
 	}
 
@@ -78,7 +81,7 @@ int main(void)
 	}
 	else if (result == 0)
 	{
-		printf("\x1b[9;1HNot Result\n");
+		printf("\x1b[9;1Hkekka nashi\n");
 	}
 	else
 	{
@@ -86,8 +89,8 @@ int main(void)
 	}
 
 	const char *msg[] = {
-		"QTM Enabled",
-		"QTM Disabled"};
+		"QTM wo yuukou ka",
+		"QTM wo mukou ka"};
 
 	printf("\x1b[12;1H%s\n", msg[qtmDisabled]);
 
