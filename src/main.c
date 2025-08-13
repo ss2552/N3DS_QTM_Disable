@@ -29,7 +29,6 @@ int main(void)
 {
 
 	bool skip = false;
-	bool is_n3ds = false;
 
 	// --------------------------------------------------
 
@@ -45,18 +44,19 @@ int main(void)
 	// 画面を空白埋め
 	consoleClear();
 
+	printf("\x1b[16;20HStart");
+
+	svcSleepThread(10 * 1000 * 1000);
+
 	// --------------------------------------------------
 
 	// new 3dsか確認
 	// PTM:CheckNew3DS https://www.3dbrew.org/wiki/PTM:CheckNew3DS
-	PTMSYSM_CheckNew3DS(&is_n3ds);
-	if (is_n3ds != 1)
+	if (!PTMSYSM_CheckNew3DS())
 	{
 		printf("\x1b[16;20HN3ds専用¥n");
 		skip = true;
 	}
-
-	hidScanInput();
 
 	// QTMを有効または無効化
 	if (!skip)
