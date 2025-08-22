@@ -53,9 +53,9 @@ u8 y = 0;
 
 void print(char *msg, ...){
     va_list args;
-    char s[100] = {0};
+    char *s[100];
     va_start(args, msg);
-    vsprintf(&s, msg, args);
+    vsprintf(s, msg, args);
     printf("\x1b[%u;1H %s", ++y, s);
     va_end(args);
 }
