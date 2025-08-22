@@ -46,7 +46,7 @@ int main(void)
     rpDoQTMPatchAndToggle();
 
     if(qtmDisabled){
-        topScreenConsole.bg = SUCCESS_COLOR:
+        topScreenConsole.bg = SUCCESS_COLOR;
         consoleClear();
         print("QTM Disabled Success");
     }
