@@ -47,4 +47,6 @@ int main(void)
 
 u8 y = 0;
 
-void print(char *msg[]){printf("\x1b[%u;1H %s", ++y, msg);}
+void print(char *msg){
+    printf("\x1b[%u;1H %s", ++y, *msg);
+}
