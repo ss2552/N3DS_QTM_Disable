@@ -154,6 +154,7 @@ void rpDoQTMPatchAndToggle(void)
 {
 
 
+    u8 buf[RP_QTM_HDR_SIZE] = {0};
 
     // QTMサービス接続
     u32 pid = 0x15;
@@ -166,7 +167,6 @@ void rpDoQTMPatchAndToggle(void)
 
 
 	// ここにQTMのコピーらしい
-    u8 buf[RP_QTM_HDR_SIZE] = {0};
     ret = copyRemoteMemory(CUR_PROCESS_HANDLE, buf, hProcess, (void *)remotePC, RP_QTM_HDR_SIZE);
     if (ret != 0){
         print("@Read QTM memory at %ld failed: %ld", remotePC, ret);

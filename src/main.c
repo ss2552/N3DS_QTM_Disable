@@ -3,6 +3,7 @@
 #include <3ds/gfx.h>
 #include <3ds/services/hid.h>
 #include <3ds/services/apt.h>
+#include <3ds/svc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -14,8 +15,8 @@ void print(char *msg, ...);
 
 // https://rgbcolorpicker.com/0-1
 #define BLACK_COLOR 0b0000
-#define GREEN_COLOR 0b0001
-#define MAGENTA_COLOR 0b0010
+#define ERROR_COLOR 0b0111
+#define SUCCESS_COLOR 0b0010
 #define WHITE_COLOR 0b1111
 
 // ? b g r
@@ -28,14 +29,25 @@ int main(void)
 {
 	gfxInitDefault();
 	consoleInit(GFX_TOP, &topScreenConsole);
-	topScreenConsole.bg = BLACK_COLOR;
+	topScreenConsole.bg = ERROR_COLOR;
 	topScreenConsole.fg = WHITE_COLOR;
+
+    print("わ");
+    svcSleepThread(1 * 1000 * 1000)
+    print("っ");
+    svcSleepThread(1 * 1000 * 1000)
+    print("ぴ");
+    svcSleepThread(1 * 1000 * 1000)
+    print("｜|");
+    svcSleepThread(5 * 1000 * 1000)
+
+    consoleClear();
 
     rpDoQTMPatchAndToggle();
 
-    topScreenConsole.bg = qtmDisabled  ?GREEN_COLOR : MAGENTA_COLOR;
-
     if(qtmDisabled){
+        topScreenConsole.bg = SUCCESS_COLOR:
+        consoleClear();
         print("QTM Disabled Success");
     }
 
@@ -53,7 +65,7 @@ u8 y = 0;
 
 void print(char *msg, ...){
     va_list args;
-    char s[100];
+    char s[100 ] = {0};
     va_start(args, msg);
     vsprintf(s, msg, args);
     printf("\x1b[%u;1H %s", ++y, s);
