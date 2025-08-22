@@ -7,9 +7,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdarg.h>
 
 void rpDoQTMPatchAndToggle(void);
-void print(char *msg);
+void print(char *msg, ...);
 
 // https://rgbcolorpicker.com/0-1
 #define BLACK_COLOR 0b0000
@@ -50,6 +51,11 @@ int main(void)
 
 u8 y = 0;
 
-void print(char *msg){
+void print(char *msg ...){
+    va_list args;
+    char buff[u64] = {0};
+    va_start(args, msg);
+    vsprintf(&buff, msg, args);
     printf("\x1b[%u;1H %s", ++y, msg);
+    va_end(args);
 }
