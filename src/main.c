@@ -51,11 +51,11 @@ int main(void)
 
 u8 y = 0;
 
-void print(char *msg ...){
+void print(char *msg, ...){
     va_list args;
-    char buff[u64] = {0};
+    char msgs[u64] = {0};
     va_start(args, msg);
-    vsprintf(&buff, msg, args);
-    printf("\x1b[%u;1H %s", ++y, msg);
+    vsprintf(&msgs, msg, args);
+    printf("\x1b[%u;1H %s", ++y, msgs);
     va_end(args);
 }
