@@ -14,12 +14,13 @@ void rpDoQTMPatchAndToggle(void);
 void print(char *msg, ...);
 
 // https://rgbcolorpicker.com/0-1
-#define BLACK_COLOR 0b0000
-#define ERROR_COLOR 0b0111
-#define SUCCESS_COLOR 0b0010
+#define BLACK_COLOR 0b1000
+#define ERROR_COLOR 0b1001
+#define SUCCESS_COLOR 0b1010
 #define WHITE_COLOR 0b1111
 
 // ? b g r
+// 0b0111 灰色
 // 0b0101 紫色
 
 bool qtmDisabled = 0;
