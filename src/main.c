@@ -9,31 +9,42 @@
 #include <string.h>
 
 void rpDoQTMPatchAndToggle(void);
+void print(char *msg[]);
 
-int result = 0;
+// https://rgbcolorpicker.com/0-1
+#define BLACK_COLOR 0b0000
+#define GREEN_COLOR 0b0001
+#define MAGENTA_COLOR 0b0010
+#define WHITE_COLOR 0b1111
 
-int qtmDisabled = 0;
+// ? b g r
+// 0b0101 紫色
+
+bool qtmDisabled = 0;
+PrintConsole topScreenConsole;
 
 int main(void)
 {
-
 	gfxInitDefault();
-	consoleInit(GFX_TOP, NULL);
+	consoleInit(GFX_TOP, &topScreenConsole);
+	topScreenConsole.bg = BLACK_COLOR;
+	topScreenConsole.fg = WHITE_COLOR;
 
-	const char *msg[] = {"mukou ka", "yuukou ka"};
-	printf("\x1b[2;10HQTM wo %s shimasu", msg[qtmDisabled]);
+    rpDoQTMPatchAndToggle();
 
- rpDoQTMPatchAndToggle();
+    topScreenConsole.bg = qtmDisabled  ?GREEN_COLOR : MAGENTA_COLOR;
 
-	printf("\x1b[4;10H%s shimashita (%i)", msg[!qtmDisabled], result);
+    if(qtmDisabled)
+        print("QTM Disabled Success");
 
-	while(aptMainLoop())
-	{
+	while (aptMainLoop()){
 		hidScanInput();
-		if(hidKeysDown())
-			break;
+		if (hidKeysDown()) break;
 	}
-
 	gfxExit();
 	return 0;
 }
+
+u8 y = 0;
+
+void print(char msg[]){printf("\x1b[%u;1H %s", ++y, msg);}

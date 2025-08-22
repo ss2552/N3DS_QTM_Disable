@@ -1,7 +1,5 @@
 #include <3ds/types.h>
 #include <3ds/svc.h>
-#include <3ds/console.h>
-#include <3ds/gfx.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,14 +8,15 @@
 #include <memory.h>
 
 void rpDoQTMPatchAndToggle(void);
+void print(char *msg[]);
 
-static int qtmPatched = 0;
 static int qtmPayloadAddr = 0;
-extern int qtmDisabled;
+extern bool qtmDisabled;
+Handle hProcess;
 
-extern int result;
+u32 remotePC = 0x00119a48;
+s32 ret;
 
-static u8 y_point = 1;
 
 static u32 currentPid = 0;
 u32 getCurrentProcessId(void)
@@ -42,26 +41,26 @@ u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc
 	ret = svcFlushProcessDataCache(hSrc, (u32)ptrSrc, size);
 	if (ret != 0)
 	{
-		printf("\x1b[%u;1H@svcFlushProcessDataCache src failed: %lu\n", y_point += 2, ret);
+		print("@svcFlushProcessDataCache src failed: %lu", ret);
 		return ret;
 	}
 	ret = svcFlushProcessDataCache(hDst, (u32)ptrDst, size);
 	if (ret != 0)
 	{
-		printf("\x1b[%u;1H@svcFlushProcessDataCache dst failed: %lu\n", y_point += 2, ret);
+		print("@svcFlushProcessDataCache dst failed: %lu", ret);
 		return ret;
 	}
 
 	ret = svcStartInterProcessDma(&hdma, hDst, (u32)ptrDst, hSrc, (u32)ptrSrc, size, (DmaConfig *)dmaConfig);
 	if (ret != 0)
 	{
-		printf("\x1b[%u;1H@svcStartInterProcessDma failed: %lu\n", y_point += 2, ret);
+		print("@svcStartInterProcessDma failed: %lu", ret);
 		return ret;
 	}
 	ret = svcWaitSynchronization(hdma, timeout);
 	if (ret != 0)
 	{
-		printf("\x1b[%u;1H@copyRemoteMemory time out (or error) %lu", y_point += 2, ret);
+		print("@copyRemoteMemory time out (or error) %lu", ret);
 		svcCloseHandle(hdma);
 		return 1;
 	}
@@ -70,7 +69,7 @@ u32 copyRemoteMemoryTimeout(Handle hDst, void *ptrDst, Handle hSrc, void *ptrSrc
 	ret = svcInvalidateProcessDataCache(hDst, (u32)ptrDst, size);
 	if (ret != 0)
 	{
-		printf("\x1b[%u;1H@svcInvalidateProcessDataCache failed: %lu\n", y_point += 2, ret);
+		print("@svcInvalidateProcessDataCache failed: %lu", ret);
 		return ret;
 	}
 	return 0;
@@ -90,22 +89,23 @@ u32 rtGetPageOfAddress(u32 addr)
 	return PAGE_OF_ADDR(addr);
 }
 
-u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm)
-{
-	MemInfo memInfo;
+u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm){
+MemInfo memInfo;
 	PageInfo pageInfo;
 	s32 ret = svcQueryMemory(&memInfo, &pageInfo, addr);
 	if (ret != 0)
 	{
-		printf("\x1b[%u;1H@svcQueryMemory failed for addr %ld: %ld\n", y_point += 2, addr, ret);
+		printf("\x1b[16;10HsvcQueryMemory failed for addr %ld: %ld\n", addr, ret);
 		return ret;
 	}
 	if (memInfo.perm == 0)
 	{
+        print("1");
 		return -1;
 	}
 	if (memInfo.base_addr + memInfo.size < addr + size)
 	{
+        print("2");
 		return -1;
 	}
 
@@ -125,10 +125,12 @@ u32 rtCheckRemoteMemory(Handle hProcess, u32 addr, u32 size, MemPerm perm)
 	size = endPage - startPage + 0x1000;
 
 	ret = protectRemoteMemory(hProcess, (void *)startPage, size, perm);
+    print("3");
 	return ret;
 }
 
 #define RP_QTM_HDR_SIZE (4)
+#define RP_QTM_PAYLOAD_SIZE (32)
 
 typedef enum ProcessOp
 {
@@ -148,173 +150,148 @@ typedef enum ProcessOp
 
 Result svcControlProcess(Handle process, ProcessOp op, u32 varg2, u32 varg3);
 
-// When enabling this patch, the qtm camera service usage is more or less disabled.
-// This increases performance on New 3DS for remote play by up to 20%.
-// Performance on New 3DS is still ~5% slower than New 2DS despite the improvement.
-// Still trying to figure out where that last difference comes from...
-// Note: head tracking is always active even if 3D is turned off, whether by slider or
-// through system settings. Hence this patch is necessary for performance.
 void rpDoQTMPatchAndToggle(void)
 {
-	u8 desiredHeader[RP_QTM_HDR_SIZE] = {
-		0x32,
-		0x00,
-		0x00,
-		0xef,
-	};
 
-	u32 remotePC = 0x00119a48;
-	Handle hProcess;
-	s32 ret;
-	u32 pid = 0x15; // QTM process
 
-	u8 buf[RP_QTM_HDR_SIZE] = {0};
 
-	ret = svcOpenProcess(&hProcess, pid);
-	if (ret != 0)
-	{
-		printf("\x1b[%u;1H@Open QTM process failed: %ld", y_point += 2, ret);
-		hProcess = 0;
-		goto final;
+    // QTMサービス接続
+    u32 pid = 0x15;
+    ret = svcOpenProcess(hProcess, pid);
+    if (ret != 0){
+		print("@Open QTM process failed: %ld", ret);
+		return;
 	}
 
-	if (!qtmPatched)
-	{
-		ret = copyRemoteMemory(CUR_PROCESS_HANDLE, buf, hProcess, (void *)remotePC, RP_QTM_HDR_SIZE);
-		if (ret != 0)
-		{
-			printf("\x1b[%u;1H@Read QTM memory at %ld failed: %ld", y_point += 2, remotePC, ret);
-			goto final;
-		}
 
-		if (memcmp(buf, desiredHeader, RP_QTM_HDR_SIZE) != 0)
-		{
-			printf("\x1b[%u;1H@Unexpected QTM memory content", y_point += 2);
-			goto final;
-		}
-	}
 
+	// ここにQTMのコピーらしい
+    u8 buf[RP_QTM_HDR_SIZE] = {0};
+    ret = copyRemoteMemory(CUR_PROCESS_HANDLE, buf, hProcess, (void *)remotePC, RP_QTM_HDR_SIZE);
+    if (ret != 0){
+        print("@Read QTM memory at %ld failed: %ld", remotePC, ret);
+		svcCloseHandle(hProcess);
+    }
+
+
+
+    // バッファ内を検索
+    u8 desiredHeader[RP_QTM_HDR_SIZE] = {0x32, 0x00, 0x00, 0xef};
+    ret = memcmp(buf, desiredHeader, RP_QTM_HDR_SIZE);
+    if (ret != 0)
+    {
+        print("@Unexpected QTM memory content");
+		svcCloseHandle(hProcess);
+    }
+
+
+
+    // QTMを止める
 	ret = svcControlProcess(hProcess, PROCESSOP_SCHEDULE_THREADS, 1, 0);
 	if (ret != 0)
 	{
-		printf("\x1b[%u;1H@Locking QTM failed: %ld\n", y_point += 2, ret);
-		goto final;
+		print("@Locking QTM failed: %ld", ret);
+		svcCloseHandle(hProcess);
 	}
 
-#define RP_QTM_PAYLOAD_SIZE (32)
-	u8 payload[RP_QTM_PAYLOAD_SIZE] = {
-		0x01, 0x01, 0xA0, 0xE3, // mov r0, #0x40000000
-		0x00, 0x10, 0xA0, 0xE3, // mov r1, #0
-		0x0A, 0x00, 0x00, 0xEF, // svc #0xa
-		0x00, 0x20, 0xA0, 0xE3, // mov r2, #0
-		0x00, 0x30, 0xA0, 0xE3, // mov r3, #0
-		0x0F, 0x00, 0x85, 0xE8, // stm r5, {r0, r1, r2, r3}
-		0x70, 0x80, 0xBD, 0xE8, // ldmia sp!, {r4, r5, r6, pc}
-		0x00, 0xF0, 0x20, 0xE3, // nop
-	};
 
-	if (!qtmPatched)
-	{
-		ret = rtCheckRemoteMemory(hProcess, remotePC, RP_QTM_HDR_SIZE, MEMPERM_READWRITE | MEMPERM_EXECUTE);
-		if (ret != 0)
-		{
-			printf("\x1b[%u;1H@QTM protectRemoteMemory failed: %ld", y_point += 2, ret);
-			goto final_unlock;
-		}
 
-		u32 qtmBinEnd = 0x001ac000;
+    // QTMをプロテクトリモートで確認
+    ret = rtCheckRemoteMemory(hProcess, remotePC, RP_QTM_HDR_SIZE, MEMPERM_READWRITE | MEMPERM_EXECUTE);
+    if (ret != 0)
+    {
+        print("@QTM protectRemoteMemory failed: %ld", ret);
+        goto final_unlock;
+    }
 
-		u32 qtmPayloadAddrMin = qtmBinEnd - 0x800;
-		u32 qtmPayloadAddrTry = qtmBinEnd - RP_QTM_PAYLOAD_SIZE;
 
-		while (1)
-		{
-		retry:
-			if (qtmPayloadAddrTry < qtmPayloadAddrMin)
-			{
-				printf("\x1b[%u;1H@Unable to find free space to install QTM payload\n", y_point += 2);
-				goto final_unlock;
-			}
 
-			u8 tmp[RP_QTM_PAYLOAD_SIZE] = {0};
+    u32 qtmBinEnd = 0x001ac000;
+    u32 qtmPayloadAddrMin = qtmBinEnd - 0x800;
+    u32 qtmPayloadAddrTry = qtmBinEnd - RP_QTM_PAYLOAD_SIZE;
 
-			ret = copyRemoteMemory(CUR_PROCESS_HANDLE, tmp, hProcess, (void *)qtmPayloadAddrTry, RP_QTM_PAYLOAD_SIZE);
-			if (ret != 0)
-			{
-				printf("\x1b[%u;1H@Read QTM memory at %ld failed: %ld", y_point += 2, qtmPayloadAddrTry, ret);
-				goto final_unlock;
-			}
+    {
+        retry:
 
-			for (unsigned i = 0; i < RP_QTM_PAYLOAD_SIZE / sizeof(u32); ++i)
-			{
-				if (((u32 *)tmp)[i])
-				{
-					qtmPayloadAddrTry -= RP_QTM_PAYLOAD_SIZE;
-					goto retry;
-				}
-			}
 
-			break;
-		}
 
-		ret = rtCheckRemoteMemory(hProcess, qtmPayloadAddrTry, RP_QTM_PAYLOAD_SIZE, MEMPERM_READWRITE | MEMPERM_EXECUTE);
-		if (ret != 0)
-		{
-			printf("\x1b[%u;1H@QTM protectRemoteMemory for payload failed: %ld", y_point += 2, ret);
-			goto final_unlock;
-		}
+        // メモリの空き容量があるか
+        if (qtmPayloadAddrTry < qtmPayloadAddrMin){
+            print("@Unable to find free space to install QTM payload");
+            goto final_unlock;
+        }
 
-		ret = copyRemoteMemory(hProcess, (void *)qtmPayloadAddrTry, CUR_PROCESS_HANDLE, payload, RP_QTM_PAYLOAD_SIZE);
-		if (ret != 0)
-		{
-			printf("\x1b[%u;1H@Write QTM memory for payload at %ld failed: %ld", y_point += 2, qtmPayloadAddrTry, ret);
-			goto final_unlock;
-		}
 
-		qtmPayloadAddr = qtmPayloadAddrTry;
-		qtmPatched = 1;
-	}
 
-	if (!qtmDisabled)
-	{
-		u32 branchDistance = qtmPayloadAddr - remotePC;
+        u8 tmp[RP_QTM_PAYLOAD_SIZE] = {0};
 
-		u32 replacementInst = (branchDistance / 4 - 2) | 0xea000000; // b inst
+        ret = copyRemoteMemory(CUR_PROCESS_HANDLE, tmp, hProcess, (void *)qtmPayloadAddrTry, RP_QTM_PAYLOAD_SIZE);
+        if (ret != 0)
+        {
+            print("@Read QTM memory at %ld failed: %ld", qtmPayloadAddrTry, ret);
+            goto final_unlock;
+        }
 
-		ret = copyRemoteMemory(hProcess, (void *)remotePC, CUR_PROCESS_HANDLE, &replacementInst, RP_QTM_HDR_SIZE);
-		if (ret != 0)
-		{
-			printf("\x1b[%u;1H@Write QTM memory at %ld failed: %ld", y_point += 2, remotePC, ret);
-			goto final_unlock;
-		}
 
-		qtmDisabled = 1;
-		result = 1;
-		printf("\x1b[%u;1H@Patch QTM success", y_point += 2);
-	}
-	else
-	{
-		ret = copyRemoteMemory(hProcess, (void *)remotePC, CUR_PROCESS_HANDLE, desiredHeader, RP_QTM_HDR_SIZE);
-		if (ret != 0)
-		{
-			printf("\x1b[%u;1H@Restore QTM memory at %ld failed: %ld", y_point += 2, remotePC, ret);
-			goto final_unlock;
-		}
 
-		qtmDisabled = 0;
-		result = -1;
-		printf("\x1b[%u;1H@Restore QTM success", y_point += 2);
-	}
+        for (unsigned i = 0; i < RP_QTM_PAYLOAD_SIZE / sizeof(u32); ++i)
+        {
+            if (((u32 *)tmp)[i])
+            {
+                qtmPayloadAddrTry -= RP_QTM_PAYLOAD_SIZE;
+                goto retry;
+            }
+        }
+    }
+
+
+    ret = rtCheckRemoteMemory(hProcess, qtmPayloadAddrTry, RP_QTM_PAYLOAD_SIZE, MEMPERM_READWRITE | MEMPERM_EXECUTE);
+    if (ret != 0)
+    {
+        print("@QTM protectRemoteMemory for payload failed: %ld", ret);
+        print("qtmPayloadAddr: %ld 読み書きと読み実行: %ld", qtmPayloadAddr, MEMPERM_READWRITE | MEMPERM_EXECUTE);
+        goto final_unlock;
+    }
+
+    u8 payload[RP_QTM_PAYLOAD_SIZE] = {
+                0x01, 0x01, 0xA0, 0xE3, // mov r0, #0x40000000
+                0x00, 0x10, 0xA0, 0xE3, // mov r1, #0
+                0x0A, 0x00, 0x00, 0xEF, // svc #0xa
+                0x00, 0x20, 0xA0, 0xE3, // mov r2, #0
+                0x00, 0x30, 0xA0, 0xE3, // mov r3, #0
+                0x0F, 0x00, 0x85, 0xE8, // stm r5, {r0, r1, r2, r3}
+                0x70, 0x80, 0xBD, 0xE8, // ldmia sp!, {r4, r5, r6, pc}
+                0x00, 0xF0, 0x20, 0xE3, // nop
+    };
+
+    ret = copyRemoteMemory(hProcess, (void *)qtmPayloadAddrTry, CUR_PROCESS_HANDLE, payload, RP_QTM_PAYLOAD_SIZE);
+    if (ret != 0)
+    {
+        print("@Write QTM memory for payload at %ld failed: %ld", qtmPayloadAddrTry, ret);
+        goto final_unlock;
+    }
+
+    qtmPayloadAddr = qtmPayloadAddrTry;
+
+
+
+    // パッチ
+    u32 branchDistance = qtmPayloadAddr - remotePC;
+    u32 replacementInst = (branchDistance / 4 - 2) | 0xea000000; // b inst
+    ret = copyRemoteMemory(hProcess, (void *)remotePC, CUR_PROCESS_HANDLE, &replacementInst, RP_QTM_HDR_SIZE);
+    if (ret != 0){
+                print("@Write QTM memory at %ld failed: %ld", remotePC, ret);
+                goto final_unlock;
+    }
+    qtmDisabled = 1;
+    print("@Patch QTM success");
 
 final_unlock:
 	ret = svcControlProcess(hProcess, PROCESSOP_SCHEDULE_THREADS, 0, 0);
 	if (ret != 0)
 	{
-		goto final;
-		printf("\x1b[%u;1H@Unlocking QTM process failed: %ld\n", y_point += 2, ret);
-	}
-
-final:
-	if (hProcess)
 		svcCloseHandle(hProcess);
+		print("@Unlocking QTM process failed: %ld", ret);
+	}
+    
 }
