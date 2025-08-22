@@ -8,7 +8,7 @@
 #include <memory.h>
 
 void rpDoQTMPatchAndToggle(void);
-void print(char *msg[]);
+void print(char *msg);
 
 static int qtmPayloadAddr = 0;
 extern bool qtmDisabled;

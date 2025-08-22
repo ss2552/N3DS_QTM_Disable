@@ -9,7 +9,7 @@
 #include <string.h>
 
 void rpDoQTMPatchAndToggle(void);
-void print(char *msg[]);
+void print(char *msg);
 
 // https://rgbcolorpicker.com/0-1
 #define BLACK_COLOR 0b0000
@@ -34,12 +34,15 @@ int main(void)
 
     topScreenConsole.bg = qtmDisabled  ?GREEN_COLOR : MAGENTA_COLOR;
 
-    if(qtmDisabled)
+    if(qtmDisabled){
         print("QTM Disabled Success");
+    }
 
 	while (aptMainLoop()){
 		hidScanInput();
-		if (hidKeysDown()) break;
+		if (hidKeysDown()){
+            break;
+        }
 	}
 	gfxExit();
 	return 0;
@@ -48,5 +51,5 @@ int main(void)
 u8 y = 0;
 
 void print(char *msg){
-    printf("\x1b[%u;1H %s", ++y, *msg);
+    printf("\x1b[%u;1H %s", ++y, msg);
 }
