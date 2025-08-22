@@ -157,7 +157,7 @@ void rpDoQTMPatchAndToggle(void)
 
     // QTMサービス接続
     u32 pid = 0x15;
-    ret = svcOpenProcess(hProcess, pid);
+    ret = svcOpenProcess(&hProcess, pid);
     if (ret != 0){
 		print("@Open QTM process failed: %ld", ret);
 		return;
