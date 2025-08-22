@@ -33,13 +33,13 @@ int main(void)
 	topScreenConsole.fg = WHITE_COLOR;
 
     print("わ");
-    svcSleepThread(1 * 1000 * 1000)
+    svcSleepThread(1 * 1000 * 1000);
     print("っ");
-    svcSleepThread(1 * 1000 * 1000)
+    svcSleepThread(1 * 1000 * 1000);
     print("ぴ");
-    svcSleepThread(1 * 1000 * 1000)
+    svcSleepThread(1 * 1000 * 1000);
     print("｜|");
-    svcSleepThread(5 * 1000 * 1000)
+    svcSleepThread(5 * 1000 * 1000);
 
     consoleClear();
 
