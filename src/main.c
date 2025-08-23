@@ -3,7 +3,7 @@
 #include <3ds/gfx.h>
 #include <3ds/services/hid.h>
 #include <3ds/services/apt.h>
-#include <3ds/svc.h>
+// #include <3ds/svc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -32,7 +32,9 @@ int main(void)
 	consoleInit(GFX_TOP, &topScreenConsole);
 	topScreenConsole.bg = ERROR_COLOR;
 	topScreenConsole.fg = WHITE_COLOR;
-
+    /*
+    consoleClear();
+	
     print("わ");
     svcSleepThread(1 * 1000 * 1000);
     print("っ");
@@ -41,7 +43,7 @@ int main(void)
     svcSleepThread(1 * 1000 * 1000);
     print("｜|");
     svcSleepThread(5 * 1000 * 1000);
-
+	*/
     consoleClear();
 
     rpDoQTMPatchAndToggle();
@@ -58,6 +60,7 @@ int main(void)
             break;
         }
 	}
+
 	gfxExit();
 	return 0;
 }
